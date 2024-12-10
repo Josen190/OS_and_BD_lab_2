@@ -3,8 +3,8 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using OS_and_BD_lab_2.Models
 @using OS_and_BD_lab_2.Models.CodeRepositroy.D
-
-
+@using OS_and_BD_lab_2.Service
+@inject UserSessionService UserSession
 
 <h1>Проверка данных</h1>
 
@@ -22,14 +22,11 @@
 <br />
 <div>
     <button class="btn btn-primary" @onclick="CheckData">Проверить данные</button>
-    <AuthorizeView Roles="Admin">
-        <Authorized>
-            <button class="btn btn-primary" @onclick="SaveData">Сохранить данные</button>
-        </Authorized>
-        <NotAuthorized>
-            <!-- Если не админ - кнопка не отображается -->
-        </NotAuthorized>
-    </AuthorizeView>
+
+    @if (UserSession.IsAdmin())
+    {
+        <button class="btn btn-primary" @onclick="SaveData">Сохранить данные</button>
+    }
 </div>
 
 

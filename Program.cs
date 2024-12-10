@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using OS_and_BD_lab_2.Service;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using OS_and_BD_lab_2.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,7 @@ builder.Services.AddDbContext<DatabaseContext>(options =>
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddSingleton<TokenRevocationService>();
+builder.Services.AddSingleton<UserSessionService>();
 builder.Services.AddControllers();
 
 builder.Services.AddAuthentication(options =>
@@ -66,6 +68,21 @@ using (var scope = app.Services.CreateScope())
 {
     var databaseContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
     databaseContext?.Database.Migrate();
+
+    if (!databaseContext.Users.Any(u => u.Login == "admin"))
+    {
+        // Создаём пользователя с правами администратора
+        var adminUser = new User
+        {
+            Name = "Administrator",
+            Login = "admin",
+            Password = UserService.HashPassword("admin"), // Хэшируем пароль "admin"
+            isAdmin = true
+        };
+
+        databaseContext.Users.Add(adminUser);
+        databaseContext.SaveChanges();
+    }
 }
 
 // Configure the HTTP request pipeline.
@@ -77,9 +94,9 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapControllers();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
