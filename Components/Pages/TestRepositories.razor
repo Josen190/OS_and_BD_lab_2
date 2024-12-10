@@ -1,0 +1,71 @@
+﻿@page "/test-repositories"
+@using OS_and_BD_lab_2.Models
+@using OS_and_BD_lab_2.Models.CodeRepositroy.D
+@rendermode InteractiveServer
+
+<h1>Репозиторий тестов</h1>
+
+@* @if (repositoryNames != null && repositoryNames.Any())
+{
+    <h2>Выберите репозиторий</h2>
+    <div class="form-group">
+        <select class="form-control" @bind="selectedRepoName">
+            <option value="">Выберите репозиторий...</option>
+            @foreach (var repoName in repositoryNames)
+            {
+                <option value="@repoName">@repoName</option>
+            }
+        </select>
+    </div>
+    <button class="btn btn-primary mt-2" @onclick="LoadRepository" disabled="@(string.IsNullOrEmpty(selectedRepoName))">Загрузить репозиторий</button>
+}
+else
+{
+    <p>Нет доступных репозиториев.</p>
+} *@
+
+@if (selectedRepo != null && selectedRepo.Tests.Any())
+{
+    <h2 class="mt-4">Тесты в репозитории: @selectedRepo.Name</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Входные данные</th>
+                <th>Выходные данные</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < selectedRepo.Tests.Count; i++)
+            {
+                var test = selectedRepo.Tests[i];
+                var index = i;
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td><pre class="border p-3 bg-light text-break">@test.Input</pre></td>
+                    <td>
+                        <pre class="border p-3 bg-light text-break">@test.Output</pre>
+                        @if (test.isRun)
+                        {
+                            <pre class="border p-3 bg-light text-break">@test.Result</pre>
+                        }
+                        
+                    </td>
+                    <td>
+                        <button class="btn @(test.isRun ? (test.isSuccess ? "btn-success" : "btn-danger"): "btn-light") mt-2" @onclick="() => selectedRepo.runTest(index)">Запустить тест</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (selectedRepo != null)
+{
+    int i = 0;
+    <p>Тестов в выбранном репозитории нет.</p>
+}
+
+@code {
+    private CodeRepositroyD selectedRepo = new CodeRepositroyD();
+}

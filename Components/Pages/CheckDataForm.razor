@@ -1,0 +1,126 @@
+﻿@page "/checkdata"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Components.Authorization
+@using OS_and_BD_lab_2.Models
+@using OS_and_BD_lab_2.Models.CodeRepositroy.D
+
+
+
+<h1>Проверка данных</h1>
+
+<div class="form-col">
+    <div class="form-group col-md-6">
+        <label for="inputData">Входные данные</label>
+        <textarea class="form-control" id="inputData" rows="5" @bind="inputData"></textarea>
+    </div>
+    <div class="form-group col-md-6">
+        <label for="outputData">Выходные данные</label>
+        <textarea class="form-control" id="outputData" rows="5" @bind="outputData"></textarea>
+    </div>
+</div>
+
+<br />
+<div>
+    <button class="btn btn-primary" @onclick="CheckData">Проверить данные</button>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <button class="btn btn-primary" @onclick="SaveData">Сохранить данные</button>
+        </Authorized>
+        <NotAuthorized>
+            <!-- Если не админ - кнопка не отображается -->
+        </NotAuthorized>
+    </AuthorizeView>
+</div>
+
+
+@if (!string.IsNullOrEmpty(comparisonResult))
+{
+    <div>
+        <p class ="alert @(isMatch ? "alert-success" : "alert-danger") mt-3">
+            <strong>Результат:</strong> 
+            @comparisonResult
+        </p>
+        <br />
+        <div>
+            <p><strong>Ожидалось:</strong></p>
+            <pre>@outputData</pre>
+            <p><strong>Получено:</strong></p>
+            <pre>@((MarkupString)HighlightDifferences(outputData, expectedOutput))</pre>
+        </div>
+        
+    </div>
+}
+
+
+@code {
+    private string inputData = string.Empty;
+    private string outputData = string.Empty;
+    private string comparisonResult = string.Empty;
+    private string expectedOutput = string.Empty;
+    private bool isMatch = false;
+
+    private CodeRepositroyD selectedRepo = new CodeRepositroyD();
+
+    private void CheckData()
+    {
+
+        DataInputD input = DataInputD.Parse(inputData);
+        DataOutputD output = DataOutputD.Parse(outputData);
+        Test<DataInputD, DataOutputD> test = new Test<DataInputD, DataOutputD>(input, output);
+        selectedRepo.runTest(test);
+
+        // Сравнение результата с выходными данными
+        if (test.isSuccess)
+        {
+            isMatch = true;
+            comparisonResult = "Данные совпадают.";
+        }
+        else
+        {
+            isMatch = false;
+            comparisonResult = "Данные не совпадают";
+            expectedOutput = test.Result.ToString() ?? "";
+        }
+    }
+
+    private string HighlightDifferences(string expected, string actual)
+    {
+        if (string.IsNullOrEmpty(expected) || string.IsNullOrEmpty(actual))
+            return actual;
+
+        var result = new System.Text.StringBuilder();
+        int minLength = Math.Min(expected.Length, actual.Length);
+
+        for (int i = 0; i < minLength; i++)
+        {
+            if (expected[i] == actual[i])
+            {
+                result.Append(actual[i]); // Обычный символ
+            }
+            else
+            {
+                // Подсветка различия с помощью класса highlight
+                result.Append($"<span class='text-danger'>{actual[i]}</span>");
+            }
+        }
+
+        // Добавляем оставшиеся символы (если есть) из одного из строк
+        if (expected.Length > actual.Length)
+        {
+            result.Append(expected.Substring(minLength));
+        }
+        else if (actual.Length > expected.Length)
+        {
+            result.Append($"<span class='text-danger'>{actual.Substring(minLength)}</span>");
+        }
+
+        return result.ToString();
+    }
+
+    private void SaveData()
+    {
+        var input = DataInputD.Parse(inputData);
+        var output = DataOutputD.Parse(outputData);
+        selectedRepo.AddTest(input, output);
+    }
+}

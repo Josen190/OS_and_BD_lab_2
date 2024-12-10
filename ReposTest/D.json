@@ -1,0 +1,75 @@
+[
+  {
+    "Input": {
+      "boaLength": 6,
+      "obstaclesCount": 1,
+      "obstacles": [
+        [
+          5,
+          5
+        ]
+      ],
+      "movements": "FRLF"
+    },
+    "Output": {
+      "boa": [
+        5,
+        1
+      ]
+    }
+  },
+  {
+    "Input": {
+      "boaLength": 6,
+      "obstaclesCount": 4,
+      "obstacles": [
+        [
+          5,
+          5
+        ],
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          3
+        ],
+        [
+          6,
+          7
+        ]
+      ],
+      "movements": "FRLFRRT"
+    },
+    "Output": {
+      "boa": [
+        7,
+        2
+      ]
+    }
+  },
+  {
+    "Input": {
+      "boaLength": 3,
+      "obstaclesCount": 2,
+      "obstacles": [
+        [
+          1,
+          2
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "movements": "FRLLFRL"
+    },
+    "Output": {
+      "boa": [
+        4,
+        2
+      ]
+    }
+  }
+]
