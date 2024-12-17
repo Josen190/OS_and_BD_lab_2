@@ -17,5 +17,11 @@ namespace OS_and_BD_lab_2.Service
         {
             return user?.isAdmin ?? false;
         }
+
+        public void Logout()
+        {
+            user = null;
+            JwtToken = null;
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿@page "/test-repositories"
 @using OS_and_BD_lab_2.Models
 @using OS_and_BD_lab_2.Models.CodeRepositroy.D
+@using OS_and_BD_lab_2.Service
 @rendermode InteractiveServer
+@inject UserSessionService UserSession
 
 <h1>Репозиторий тестов</h1>
 
@@ -48,12 +50,17 @@ else
                         <pre class="border p-3 bg-light text-break">@test.Output</pre>
                         @if (test.isRun)
                         {
-                            <pre class="border p-3 bg-light text-break">@test.Result</pre>
+                            <pre class="border p-3 bg-@(test.isSuccess ? "success" : "danger") text-break">@test.Result</pre>
                         }
                         
                     </td>
                     <td>
-                        <button class="btn @(test.isRun ? (test.isSuccess ? "btn-success" : "btn-danger"): "btn-light") mt-2" @onclick="() => selectedRepo.runTest(index)">Запустить тест</button>
+                        <button class="btn btn-light mt-2" @onclick="() => selectedRepo.runTest(index)">Запустить тест</button>
+                        @if (UserSession.IsAdmin())
+                        {
+                            <button class="btn btn-danger mt-2" @onclick="() => selectedRepo.DeleteTest(index)">Удалить тест</button>
+
+                        }
                     </td>
                 </tr>
             }

@@ -1,9 +1,13 @@
 ﻿@page "/register"
+@rendermode InteractiveServer
 @using Microsoft.AspNetCore.Identity
 @using Microsoft.AspNetCore.Components.Forms
-@inject UserManager<IdentityUser> UserManager
-@inject SignInManager<IdentityUser> SignInManager
+@using OS_and_BD_lab_2.Models
+@using OS_and_BD_lab_2.Service
+@inject UserService UserService
 @inject NavigationManager Navigation
+@inject TokenService TokenService
+@inject UserSessionService UserSession
 
 <h3>Регистрация</h3>
 
@@ -11,8 +15,12 @@
     <DataAnnotationsValidator />
     <ValidationSummary />
     <div>
+        <label>Name:</label>
+        <InputText @bind-Value="registerModel.Name" />
+    </div>
+    <div>
         <label>Email:</label>
-        <InputText @bind-Value="registerModel.Email" />
+        <InputText @bind-Value="registerModel.Login" />
     </div>
     <div>
         <label>Пароль:</label>
@@ -36,12 +44,18 @@
             return;
         }
 
-        var user = new IdentityUser { UserName = registerModel.Email, Email = registerModel.Email };
-        var createResult = await UserManager.CreateAsync(user, registerModel.Password);
-        if (createResult.Succeeded)
+        var user = new User { Name = registerModel.Name, Login = registerModel.Login, Password = registerModel.Password };
+        var createResult = await UserService.RegisterUserAsync(user);
+        if (createResult)
         {
             // После успешной регистрации сразу авторизуем пользователя
-            await SignInManager.SignInAsync(user, isPersistent: false);
+            var user_auth = await UserService.AuthenticateUserAsync(registerModel.Login, registerModel.Password);
+            if (user_auth != null)
+            {
+                UserSession.user = user_auth;
+                UserSession.JwtToken = TokenService.GenerateToken(user_auth);
+                Navigation.NavigateTo("/");
+            }
             Navigation.NavigateTo("/");
         }
         else
@@ -52,7 +66,8 @@
 
     public class RegisterModel
     {
-        public string Email { get; set; }
+        public string Name { get; set; }
+        public string Login { get; set; }
         public string Password { get; set; }
         public string ConfirmPassword { get; set; }
     }

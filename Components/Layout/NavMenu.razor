@@ -1,6 +1,7 @@
 ﻿@using OS_and_BD_lab_2.Service
+@rendermode InteractiveServer
 @inject UserSessionService UserSession
-
+@inject NavigationManager Navigation
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -37,6 +38,10 @@
                     </svg> Тестовые репозитории
                 </NavLink>
             </div>
+
+            <div>
+                <button class="btn btn-danger mt-2" @onclick="() => Logout()">Выход</button>
+            </div>
         } else
         {
             <div class="nav-item px-3">
@@ -54,4 +59,13 @@
 
     </nav>
 </div>
+
+@code {
+    public void Logout()
+    {
+        UserSession.Logout();
+        Navigation.NavigateTo("/");
+
+    }
+}
 

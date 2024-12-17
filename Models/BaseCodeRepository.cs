@@ -17,7 +17,7 @@ namespace OS_and_BD_lab_2.Models
         public BaseCodeRepository()
         {
             Name = "D";
-            _filePath = $"C:/Data/ISTU/OS_and_BD_lab_2/ReposTest/{Name}.json";
+            _filePath = $"./ReposTest/{Name}.json";
             Tests = new List<Test<TInput, TOutput>>();
             Load();
 
